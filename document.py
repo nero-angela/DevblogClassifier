@@ -1,22 +1,36 @@
 import requests, json
 import os, re, csv
 import pandas as pd
+from enum import Enum
 from tqdm import trange
+
+class KEYS(Enum):
+    ID = '_id'
+    TITLE = 'title'
+    DESC = 'description'
+    TAGS = 'tags'
+    LINK = 'link'
+    
+    def getList():
+        return [k.value for k in KEYS]
 
 class Document():
     
-    def __init__(self):
+    def __init__(self, debug=False):
+        self.debug = debug
+        
+        # Constant
         self.DATA_URL = 'https://awesome-devblog.now.sh/api/korean/people/feeds'
         self.DOCUMENTS_PATH = './data/documents.csv'
         self.MAX_REQ_SIZE = 5000
-        self.keys = ['_id', 'title', 'description', 'tags', 'link']
         
-        print('> Updating documents...')
+        if debug: print('> Updating documents...')
         self._updateDocs()
         
-        print('> Loading documents...')
+        if debug: print('> Loading documents...')
         self.docs = self._getDocs()
-        print('> Done!')
+        
+        if debug: print('> Done!')
         
     def _getTotal(self):
         """
@@ -47,7 +61,7 @@ class Document():
     def _preprocessing(self, doc):
         """
         문서 전처리
-        - self.keys 이외의 key 삭제
+        - KEYS 이외의 key 삭제
         - [tag] list join to string
         - [title / description / tags] 영어, 한글, 공백 이외의 것들 모두 삭제
         - \n, \t 삭제
@@ -56,13 +70,13 @@ class Document():
         - 앞뒤 공백 삭제
         """
         for data in doc['data']:
-            # self.keys 이외의 key 삭제
-            rm_keys = data.keys() - self.keys
+            # KEYS 이외의 key 삭제
+            rm_keys = data.keys() - KEYS.getList()
             for rm_key in rm_keys:
                 del data[rm_key]
             
             # preprocessing
-            for key in self.keys:
+            for key in KEYS.getList():
                 if key == 'tags':
                     data[key] = ' '.join(data[key])
                 if key in ['title', 'description', 'tags']:
@@ -104,9 +118,9 @@ class Document():
             docs = self._reqDocs(size)
             with open(self.DOCUMENTS_PATH, 'w') as csv_file:
                 csv_writer = csv.writer(csv_file, delimiter=',')
-                csv_writer.writerow(['_no', '_label'] + self.keys)
+                csv_writer.writerow(['_no', '_label'] + KEYS.getList())
                 for i, doc in enumerate(docs['data']):
-                    csv_writer.writerow([i + 1, -1] + [re.sub('\t', '', str(doc[k])) for k in self.keys])
+                    csv_writer.writerow([i + 1, -1] + [re.sub('\t', '', str(doc[k])) for k in KEYS.getList()])
         else:
             # 기존 데이터가 있는 경우
             num_new_docs = 0
@@ -115,7 +129,7 @@ class Document():
             old_total = document.tail(1)['_no'].values[0] # 기존 데이터 수
             new_docs_num = total - old_total
             if new_docs_num <= 0:
-                print('The document is already up to date.')
+                if self.debug: print('The document is already up to date.')
                 return
             
             docs = self._reqDocs(size, old_total // size)
@@ -125,8 +139,8 @@ class Document():
                 for i, doc in enumerate(docs['data']):
                     if doc['_id'] not in document._id.unique():
                         num_new_docs += 1
-                        csv_writer.writerow([no + i, -1] + [re.sub('\t', '', str(doc[k])) for k in self.keys])
-            print(f'신규 문서 {num_new_docs}개 추가')
+                        csv_writer.writerow([no + i, -1] + [re.sub('\t', '', str(doc[k])) for k in KEYS.getList()])
+            if self.debug: print(f'신규 문서 {num_new_docs}개 추가')
 
     def _getDocs(self):
         """
