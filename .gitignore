@@ -1,5 +1,6 @@
 data/*
 model/*
+wv_model/*
 
 # Created by https://www.gitignore.io/api/macos,jupyternotebooks
 # Edit at https://www.gitignore.io/?templates=macos,jupyternotebooks
