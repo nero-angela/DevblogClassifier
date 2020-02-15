@@ -32,15 +32,19 @@ def getTrainData():
     data['vector'] = data.text.apply(lambda x: wv.vectorization(wv_model, x))
     return data
 
-def predict(text, criterion=0.5):
+def isDevPosting(text, criterion=0.5):
     data = doc.preprocessing(pd.DataFrame([{
         'title': text,
         'description': '',
         'tags': []
     }]))
     data = data.text.apply(lambda x: wv.vectorization(wv_model, x)).tolist()
+
+    if len(data) == 0:
+        print('text is not valid')
+        return
     data = np.array(data)
-    confidence = model.predict(data)[0][1]
+    confidence = round(model.predict(data)[0][1], 3)
     is_dev_doc = confidence > criterion
     return is_dev_doc, confidence
 
