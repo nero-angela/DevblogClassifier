@@ -34,7 +34,7 @@ class KEYS(Enum):
 
 class Document():
     
-    def __init__(self, update=False, analysis=False):
+    def __init__(self, update=False):
         
         # Constant
         self.DATA_URL = 'https://awesome-devblog.now.sh/api/korean/people/feeds'
@@ -43,20 +43,6 @@ class Document():
         
         if update:
             self.updateDocs()
-
-        # 전체 데이터
-        self.data = self._getDocs()
-        
-        # 라벨링된 데이터
-        self.labeled_data = self.data.loc[self.data.label != -1]
-        
-        # 분석
-        if analysis:
-            self.countAnalysis()
-            self.textAnalysis()
-            self.showWordCloud(self.data.text)
-            
-    # Private
         
     def _getTotal(self):
         """
@@ -159,16 +145,19 @@ class Document():
                 docs = docs.append(doc)
         return self._preprocessing(docs)
     
-    def _getDocs(self):
+    def getDocs(self, labeled=False):
         """
         전체 문서 조회
+        labeled : True = 라벨링 된 데이터, False = 전체 데이터
         """
         if not os.path.isfile(self.DOCUMENTS_PATH):
             print('> 문서가 없으므로 서버에 요청합니다.')
             self.updateDocs()
-        return pd.read_csv(self.DOCUMENTS_PATH, delimiter=',', dtype={KEYS.LABEL.value: np.int64})
-    
-    # Public
+        data = pd.read_csv(self.DOCUMENTS_PATH, delimiter=',', dtype={KEYS.LABEL.value: np.int64})
+        if not labeled:
+            return data
+        else:
+            return data.loc[data.label != -1]
     
     def updateDocs(self):
         """
@@ -224,35 +213,43 @@ class Document():
         if override:
             document.to_csv(self.DOCUMENTS_PATH, sep=",", index=False)
         print('done')
+    
+    def analysis(self, data):
+        """
+        전체 분석
+        """
+        self.countAnalysis(data)
+        self.textAnalysis(data)
+        self.showWordCloud(data.text)
         
-    def countAnalysis(self):
+    def countAnalysis(self, data):
         """
         데이터 수량 조사
         """
-        labled_data = self.data.loc[self.data.label != -1]
-        total_data=len(self.data)
+        labled_data = data.loc[data.label != -1]
+        total_data=len(data)
         total_labeled_data=len(labled_data)
         total_dev_data = len(labled_data.loc[labled_data.label == 1])
         total_non_dev_data = len(labled_data.loc[labled_data.label == 0])
         if total_labeled_data != 0:
             ratio_dev_Data = round(total_dev_data/total_labeled_data, 3)
             ratio_non_dev_data = round(total_non_dev_data/total_labeled_data, 3)
-        print('\n> 데이터 수량 조사')
+        print('> 데이터 수량 조사')
         print(f'전체 데이터 수: {total_data}개')
         print(f'라벨링된 데이터 수: {total_labeled_data}개')
-        print(f'개발 문서 수: {total_dev_data}개')
-        print(f'비개발 문서 수: {total_non_dev_data}개')
+        print(f'개발과 유관한 데이터: {total_dev_data}개')
+        print(f'개발과 무관한 데이터: {total_non_dev_data}개')
         if total_labeled_data != 0:
-            print(f'개발 문서 : 비개발 문서 = {ratio_dev_Data} : {ratio_non_dev_data}')
-        
-    def textAnalysis(self):
+            print(f'개발과 유관한 데이터 : 개발과 무관한 데이터 = {ratio_dev_Data} : {ratio_non_dev_data}')
+    
+    def textAnalysis(self, data):
         """
         text 길이 분석
         """
-        labled_data = self.data.loc[self.data.label != -1]
+        labled_data = data.loc[data.label != -1]
         total_labled_data = len(labled_data)
         labled_text_len = labled_data.text.apply(len)
-        text_len = self.data.text.apply(len)
+        text_len = data.text.apply(len)
         plt.figure(figsize=(12, 5))
         plt.hist(text_len, bins=200, alpha=0.5, color= 'r', label='all text')
         plt.hist(labled_text_len, bins=200, alpha=0.5, color= 'b', label='labeled text')
