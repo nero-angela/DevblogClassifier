@@ -1,4 +1,5 @@
 import urllib.request
+import numpy as np
 from tqdm import tqdm
 
 def downloadByURL(url, output_path):
@@ -24,3 +25,11 @@ def oneHotEncoding(label, classNum):
     oneHot = [0]*classNum
     oneHot[label] = 1
     return oneHot
+
+def reshape(series, embedding_dim):
+    """
+    shape 변경
+    """
+    result = np.array(series.tolist())
+    result = result.reshape(result.shape[0], embedding_dim, 1)
+    return result
