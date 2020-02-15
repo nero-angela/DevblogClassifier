@@ -60,7 +60,7 @@ class Document():
         """
         문서 요청
         - page는 0 부터 시작
-        - 전처리(self._preprocessing) 후 반환
+        - 전처리(self.preprocessing) 후 반환
         """
         page += 1
         params = {
@@ -79,11 +79,27 @@ class Document():
         doc.insert(0, KEYS.LABEL.value, -1)
         
         if preprocessing:
-            return self._preprocessing(doc)
+            return self.preprocessing(doc)
         else:
             return doc
+
+    def _reqDocs(self, size, start_page=0):
+        """
+        전체 문서 요청
+        """
+        total = self._getTotal()
+        if size > self.MAX_REQ_SIZE: size = self.MAX_REQ_SIZE
+        total_req = round(total/size + 0.5)
+        docs = pd.DataFrame()
+        for i in trange(start_page, total_req):
+            doc = self._reqDoc(i, size)
+            if docs.empty:
+                docs = doc
+            else:
+                docs = docs.append(doc)
+        return self.preprocessing(docs)
     
-    def _preprocessing(self, doc, joinTags=True):
+    def preprocessing(self, doc, joinTags=True):
         """
         문서 전처리
         - KEYS 이외의 key 삭제
@@ -130,23 +146,6 @@ class Document():
             axis=1
         )
         return doc
-        
-
-    def _reqDocs(self, size, start_page=0):
-        """
-        전체 문서 요청
-        """
-        total = self._getTotal()
-        if size > self.MAX_REQ_SIZE: size = self.MAX_REQ_SIZE
-        total_req = round(total/size + 0.5)
-        docs = pd.DataFrame()
-        for i in trange(start_page, total_req):
-            doc = self._reqDoc(i, size)
-            if docs.empty:
-                docs = doc
-            else:
-                docs = docs.append(doc)
-        return self._preprocessing(docs)
     
     def getDocs(self, labeled_only=True):
         """
@@ -202,7 +201,7 @@ class Document():
         
         document = pd.read_csv(self.DOCUMENTS_PATH, delimiter=',')
         old_document = pd.read_csv(old_document_path, delimiter=sep)
-        self._preprocessing(old_document, joinTags=False)
+        self.preprocessing(old_document, joinTags=False)
         for index, row in old_document.iterrows():
             link = row.link
             title = row.title

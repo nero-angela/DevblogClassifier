@@ -44,7 +44,7 @@ class WordVector():
         else:
             model = FastText.load(self.WIKI_KO_MODEL_PATH)
         
-        print(f'vocab size : {len(model.wv.vocab)}')
+        # print(f'vocab size : {len(model.wv.vocab)}') # 2,000,000
         return model
     
     def getSimilarWords(self, wv_model, word, topn=5):

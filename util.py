@@ -15,21 +15,3 @@ def downloadByURL(url, output_path):
     with DownloadProgressBar(unit='B', unit_scale=True,
                              miniters=1, desc=url.split('/')[-1]) as t:
         urllib.request.urlretrieve(url, filename=output_path, reporthook=t.update_to)
-        
-def oneHotEncoding(label, classNum):
-    """
-    라벨링된 int를 oneHot 인코딩한다
-    ex) oneHotEncoding(0, 2) -> [1, 0]
-    ex) oneHotEncoding(1, 2) -> [0, 1]
-    """
-    oneHot = [0]*classNum
-    oneHot[label] = 1
-    return oneHot
-
-def reshape(series, embedding_dim):
-    """
-    shape 변경
-    """
-    result = np.array(series.tolist())
-    result = result.reshape(result.shape[0], embedding_dim, 1)
-    return result
