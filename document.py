@@ -1,11 +1,9 @@
 import os, re, csv, requests, json
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 from enum import Enum
 from tqdm import trange
 from bs4 import BeautifulSoup
-from wordcloud import WordCloud
 
 class KEYS(Enum):
     # -1 : 아직 라벨링 안함 (default)
@@ -40,6 +38,11 @@ class Document():
         self.DATA_URL = 'https://awesome-devblog.now.sh/api/korean/people/feeds'
         self.DOCUMENTS_PATH = './data/documents.csv'
         self.MAX_REQ_SIZE = 5000
+        
+        # 기본 폴더 생성
+        for path in ['./data', './model', './wv_model']:
+            if not os.path.isdir(path):
+                os.makedirs(path)
         
         if update:
             self.updateDocs()
@@ -145,16 +148,18 @@ class Document():
                 docs = docs.append(doc)
         return self._preprocessing(docs)
     
-    def getDocs(self, labeled=False):
+    def getDocs(self, labeled_only=True):
         """
         전체 문서 조회
-        labeled : True = 라벨링 된 데이터, False = 전체 데이터
+        labeled
+        :True = 라벨링 된 데이터만 가져오기
+        :False = 전체 데이터 가져오기
         """
         if not os.path.isfile(self.DOCUMENTS_PATH):
             print('> 문서가 없으므로 서버에 요청합니다.')
             self.updateDocs()
         data = pd.read_csv(self.DOCUMENTS_PATH, delimiter=',', dtype={KEYS.LABEL.value: np.int64})
-        if not labeled:
+        if not labeled_only:
             return data
         else:
             return data.loc[data.label != -1]
@@ -213,79 +218,3 @@ class Document():
         if override:
             document.to_csv(self.DOCUMENTS_PATH, sep=",", index=False)
         print('done')
-    
-    def analysis(self, data):
-        """
-        전체 분석
-        """
-        self.countAnalysis(data)
-        self.textAnalysis(data)
-        self.showWordCloud(data.text)
-        
-    def countAnalysis(self, data):
-        """
-        데이터 수량 조사
-        """
-        labled_data = data.loc[data.label != -1]
-        total_data=len(data)
-        total_labeled_data=len(labled_data)
-        total_dev_data = len(labled_data.loc[labled_data.label == 1])
-        total_non_dev_data = len(labled_data.loc[labled_data.label == 0])
-        if total_labeled_data != 0:
-            ratio_dev_Data = round(total_dev_data/total_labeled_data, 3)
-            ratio_non_dev_data = round(total_non_dev_data/total_labeled_data, 3)
-        print('> 데이터 수량 조사')
-        print(f'전체 데이터 수: {total_data}개')
-        print(f'라벨링된 데이터 수: {total_labeled_data}개')
-        print(f'개발과 유관한 데이터: {total_dev_data}개')
-        print(f'개발과 무관한 데이터: {total_non_dev_data}개')
-        if total_labeled_data != 0:
-            print(f'개발과 유관한 데이터 : 개발과 무관한 데이터 = {ratio_dev_Data} : {ratio_non_dev_data}')
-    
-    def textAnalysis(self, data):
-        """
-        text 길이 분석
-        """
-        labled_data = data.loc[data.label != -1]
-        total_labled_data = len(labled_data)
-        labled_text_len = labled_data.text.apply(len)
-        text_len = data.text.apply(len)
-        plt.figure(figsize=(12, 5))
-        plt.hist(text_len, bins=200, alpha=0.5, color= 'r', label='all text')
-        plt.hist(labled_text_len, bins=200, alpha=0.5, color= 'b', label='labeled text')
-        plt.legend(fontsize='x-large')
-        plt.yscale('log', nonposy='clip')
-        plt.title('Log-Histogram of length of text')
-        plt.xlabel('Length of text')
-        plt.ylabel('Number of text')
-
-        corpus = [text_len, labled_text_len] if total_labled_data != 0 else [text_len]
-        for i, l in enumerate(corpus):
-            print('')
-            if i == 0:
-                print('> 문장 길이 분석 : all text')
-            else:
-                print('> 문장 길이 분석 : labeled text')
-            print('문장 길이 최대 값: {}'.format(np.max(l)))
-            print('문장 길이 최소 값: {}'.format(np.min(l)))
-            print('문장 길이 평균 값: {:.2f}'.format(np.mean(l)))
-            print('문장 길이 표준편차: {:.2f}'.format(np.std(l)))
-            print('문장 길이 중간 값: {}'.format(np.median(l)))
-
-            # 사분위의 대한 경우는 0~100 스케일로 되어있음
-            print('문장 길이 제 1 사분위: {}'.format(np.percentile(l, 25)))
-            print('문장 길이 제 3 사분위: {}'.format(np.percentile(l, 75)))
-            
-    def showWordCloud(self, text):
-        """
-        WordCloud
-        """
-        # 한글 폰트 깨짐방지
-        for font in ["/Library/Fonts/NanumGothic.ttf", "/Library/Fonts/NotoSansCJKkr-Light.otf"]:
-            if os.path.isfile(font):
-                FONT_PATH = font
-                break
-        cloud = WordCloud(font_path=FONT_PATH).generate(" ".join(text))
-        plt.figure(figsize=(20, 15))
-        plt.imshow(cloud)
-        plt.axis('off')
