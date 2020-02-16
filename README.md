@@ -5,7 +5,7 @@
 ## How To Run
 - 개발환경
   - python 3.7
-  - tensorflow 2.0.0
+  - tensorflow 2.0.1
   - jupyter notebook
 
 - 라이브러리 설치
