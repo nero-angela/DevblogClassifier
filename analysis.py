@@ -7,7 +7,10 @@ class Analysis():
      
     def __init__(self, data):
         """
-        전체 분석
+        데이터의 수량, 길이, WordCloud 분석
+        
+        - input
+        : data / DataFrame / documents.csv 데이터
         """
         self.countAnalysis(data)
         print()
@@ -18,6 +21,9 @@ class Analysis():
     def countAnalysis(self, data):
         """
         데이터 수량 조사
+        
+        - input
+        : data / DataFrame / documents.csv 데이터
         """
         
         labeled_data = data.loc[data.label != -1]
@@ -33,6 +39,9 @@ class Analysis():
     def textAnalysis(self, data):
         """
         text 길이 분석
+        
+        - input
+        : data / DataFrame / documents.csv 데이터
         """
         text_len = data.text.apply(len)
         plt.figure(figsize=(12, 5))
@@ -57,6 +66,9 @@ class Analysis():
     def showWordCloud(self, text):
         """
         WordCloud
+        
+        - input
+        : text / str / data['text'] (벡터화 하는데 사용되는 문자열)
         """
         # 한글 폰트 깨짐방지
         for font in ["/Library/Fonts/NanumGothic.ttf", "/Library/Fonts/NotoSansCJKkr-Light.otf"]:

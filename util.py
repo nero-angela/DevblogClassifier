@@ -5,6 +5,10 @@ from tqdm import tqdm
 def downloadByURL(url, output_path):
     """
     HTTP 파일 다운로드
+    
+    - input
+    : url / str / 다운로드 받으려는 파일의 url
+    : output_path / str / 파일 저장 경로
     """
     class DownloadProgressBar(tqdm):
         def update_to(self, b=1, bsize=1, tsize=None):

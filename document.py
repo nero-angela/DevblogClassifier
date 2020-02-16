@@ -4,6 +4,7 @@ import pandas as pd
 from enum import Enum
 from tqdm import trange
 from bs4 import BeautifulSoup
+from util import downloadByURL
 
 class KEYS(Enum):
     # -1 : 아직 라벨링 안함 (default)
@@ -22,12 +23,30 @@ class KEYS(Enum):
     LINK = 'link'
     
     def getDocKeys():
+        """
+        awesome-devblog API 요청시 가져오려는 컬럼
+        
+        - return
+        : list / 컬럼명 리스트
+        """
         return [KEYS.ID.value, KEYS.TITLE.value, KEYS.DESC.value, KEYS.TAGS.value, KEYS.LINK.value]
     
     def getTitleBlackList():
+        """
+        title 컬럼 기준 블랙리스트
+        
+        - return
+        : list / 블랙리스트
+        """
         return ['', 'about']
     
     def getTextKeys():
+        """
+        text 컬럼에 사용되는 awesome-devblog 컬럼
+        
+        - return
+        : list / 컬럼명 리스트
+        """
         return [KEYS.TAGS.value, KEYS.TITLE.value, KEYS.DESC.value]
 
 class Document():
@@ -37,19 +56,30 @@ class Document():
         # Constant
         self.DATA_URL = 'https://awesome-devblog.now.sh/api/korean/people/feeds'
         self.DOCUMENTS_PATH = './data/documents.csv'
+        self.DOCUMENTS_URL = 'https://drive.google.com/uc?id=1K5Isidyb1O7OXQ47Yk2fMVYBvEoL6W4-&export=download'
         self.MAX_REQ_SIZE = 5000
         
         # 기본 폴더 생성
         for path in ['./data', './model', './wv_model']:
             if not os.path.isdir(path):
                 os.makedirs(path)
+                
+        # ./data/documents.csv가 없는 경우 Google Driver에서 받아옴
+        # 자동 다운로드가 안될 경우 아래 경로에서 직접 받아 ./data 폴더 하위에 추가하면 됨
+        # https://drive.google.com/drive/u/0/folders/1Npfrh6XmeABJ8JJ6ApS1T88vVoqyDH7M
+        if not os.path.isfile(self.DOCUMENTS_PATH):
+            print('라벨링된 데이터를 다운로드합니다.')
+            downloadByURL(self.DOCUMENTS_URL, self.DOCUMENTS_PATH)
         
         if update:
             self.updateDocs()
         
     def _getTotal(self):
         """
-        전체 문서 개수 요청
+        awesome-devblog에 전체 문서 개수 요청
+        
+        - return
+        : int / 전체 문서 개수
         """
         res = requests.get(self.DATA_URL, { 'size': 1 })
         res.raise_for_status()
@@ -58,9 +88,16 @@ class Document():
 
     def _reqDoc(self, page, size, preprocessing=False):
         """
-        문서 요청
-        - page는 0 부터 시작
-        - 전처리(self.preprocessing) 후 반환
+        awesome-devblog에 문서 요청
+        : KEYS에 지정된 컬럼만 가져옴
+        
+        - input
+        : page / int / 요청 페이지(0부터 시작)
+        : size / int / 한 번의 요청으로 가져오려는 문서 개수
+        : preprocessing / boolean / 문서 전처리 여부
+        
+        - output
+        : DataFrame / DataFrame(response['data'])
         """
         page += 1
         params = {
@@ -85,7 +122,13 @@ class Document():
 
     def _reqDocs(self, size, start_page=0):
         """
-        전체 문서 요청
+        awesome-devblog에 전체 문서 요청
+        - input
+        : size / int / 한 번의 요청으로 가져올 문서개수(max 5000)
+        : start_page / int / 해당 페이지 부터 마지막 페이지까지 조회
+        
+        - return
+        : DataFrame / 전처리된 전체 데이터로 구성
         """
         total = self._getTotal()
         if size > self.MAX_REQ_SIZE: size = self.MAX_REQ_SIZE
@@ -102,15 +145,22 @@ class Document():
     def preprocessing(self, doc, joinTags=True):
         """
         문서 전처리
-        - KEYS 이외의 key 삭제
-        - [tag] list join to string
-        - [title / description / tags] 영어, 한글, 공백 이외의 것들 모두 삭제
-        - html tag 삭제
-        - \n, \r 삭제
-        - 2번 이상의 공백 1개로 통합
-        - 영어 대문자 소문자로 변환
-        - 앞뒤 공백 삭제
-        - text 컬럼 생성 : text = tags + title + description
+        : tags / 배열로 되어있으므로 띄어쓰기로 join
+        : title, description, tags / 영어, 한글, 공백만 남김
+        : html tag 삭제
+        : \n, \r 삭제
+        : 2회 이상의 공백은 하나로 줄입
+        : 영어 대문자 소문자로 변환
+        : 앞뒤 공백 삭제
+        : 블랙리스트 데이터(KEYS.getTitleBlackList()) 제외
+        : text / tags + title + description 순서로 join된 컬럼 생성
+        
+        - input
+        : doc / DataFrame / documents.csv DataFrame
+        : joinTags / boolean / tags join 여부
+        
+        - return
+        : DataFrame / 전처리 완료된 데이터
         """
         
         # title, description, tags
@@ -150,9 +200,11 @@ class Document():
     def getDocs(self, labeled_only=True):
         """
         전체 문서 조회
-        labeled
-        :True = 라벨링 된 데이터만 가져오기
-        :False = 전체 데이터 가져오기
+        - input
+        : labeled_only / boolean / 라벨링 된 데이터만 가져올지 선택
+        
+        - return
+        : DataFrame / documents.csv 데이터
         """
         if not os.path.isfile(self.DOCUMENTS_PATH):
             print('> 문서가 없으므로 서버에 요청합니다.')
@@ -165,9 +217,13 @@ class Document():
     
     def updateDocs(self):
         """
-        최신 문서 추가
-        - 데이터가 없는 경우, 전체 데이터를 가져옴
-        - 기존 데이터가 있는 경우, 없는 데이터만 추가
+        awesome-devblog에 최신 문서 요청 및 documents.csv에 추가
+        : 데이터가 없는 경우, 전체 데이터를 가져옴
+        : 기존 데이터가 있는 경우, 없는 데이터만 추가
+       
+        - export
+        : ./data/documents.csv가 없는 경우 신규 생성
+        : ./data/documents.csv가 있는 경우 신규 문서 추가
         """
         size = self.MAX_REQ_SIZE
         
@@ -196,7 +252,15 @@ class Document():
     def syncDocLabel(self, old_document_path, sep, override=False):
         """
         기존 라벨링한 데이터를 신규 문서에 반영
-        - title, link 기준으로 일치하는 문서 검색
+        : title, link 기준으로 일치하는 문서 검색
+        
+        - input
+        : old_document_path / str / 기존 라벨링한 데이터 경로
+        : sep / str / csv delimiter
+        : override / boolean / 기존 라벨링이 반영된 결과를 ./data/documents.csv로 저장여부
+        
+        - export
+        : ./data/documents.csv
         """
         
         document = pd.read_csv(self.DOCUMENTS_PATH, delimiter=',')
