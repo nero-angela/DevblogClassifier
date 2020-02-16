@@ -1,5 +1,6 @@
 # Devblog Classifier
-[Awesome Devblog](https://github.com/sarojaba/awesome-devblog)에서 제공받은 데이터를 이용하여 제작한 개발 문서 분류기입니다.
+[Daily Devblog](http://daily-devblog.com/) 서비스에 개발 이외의 글을 필터링하기 위한 문서 분류기입니다.
+[Awesome Devblog](https://github.com/sarojaba/awesome-devblog)에서 제공받은 데이터를 이용하였습니다.
 
 ---
 ## How To Run
