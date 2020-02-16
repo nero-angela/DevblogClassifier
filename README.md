@@ -1,16 +1,17 @@
-# Daily Devblog Classifier
-개발 글인지 분류해주는 모델
+# Devblog Classifier
+[Awesome Devblog](https://github.com/sarojaba/awesome-devblog)에서 제공받은 데이터를 이용하여 제작한 개발 문서 분류기입니다.
 
 ---
 ## How To Run
 - 개발환경
   - python 3.7
   - tensorflow 2.0.0
+  - jupyter notebook
 
 - 라이브러리 설치
-~~~
-$ pip install -r requirements.txt
-~~~
+  ~~~
+  $ pip install -r requirements.txt
+  ~~~
 
 - README.ipynb 참고
   ![how to run](https://user-images.githubusercontent.com/26322627/74600924-5e65a100-50db-11ea-8dad-31d18d909053.png)
@@ -18,10 +19,10 @@ $ pip install -r requirements.txt
 ---
 ## How To Training
 - train
-~~~
-from main import *
-train()
-~~~
+  ~~~
+  from main import *
+  train()
+  ~~~
 
 - 학습에 필요 용량 : 19GB
   - [labeled data](https://drive.google.com/drive/u/0/folders/1Npfrh6XmeABJ8JJ6ApS1T88vVoqyDH7M) : 23.5MB
