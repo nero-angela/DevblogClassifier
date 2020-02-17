@@ -5,9 +5,9 @@
 ---
 ## How To Run
 - 개발환경
+  - macOS Catalina v10.15.3
   - Python 3.7
   - Tensorflow 2.0.1
-  - Gensim FastText
 
 - 라이브러리 설치
   ~~~
@@ -19,28 +19,28 @@
 
 ---
 ## How To Training
-- train
-  ~~~
-  from main import *
-  train()
-  ~~~
-
 - 학습에 필요 용량 : 19GB
-  - [labeled data](https://drive.google.com/drive/u/0/folders/1Npfrh6XmeABJ8JJ6ApS1T88vVoqyDH7M) : 23.5MB
+  - [전처리 및 라벨링 된 데이터](https://drive.google.com/drive/u/0/folders/1Npfrh6XmeABJ8JJ6ApS1T88vVoqyDH7M) : 23.5MB
   - [wiki 한국어 데이터](https://dl.fbaipublicfiles.com/fasttext/vectors-crawl/cc.ko.300.bin.gz) : 4.49GB 
-  - wiki 한국어 데이터 기반 FastText model : 14.5GB
+  - [Gensim FastText model](https://radimrehurek.com/gensim/models/fasttext.html) : 14.5GB
   - tensorflow model : 170KB
 
 - data
-  - `tags / title / description` 컬럼 사용
+  - labeling : 전체 34,620개 중 10,382개 직접 라벨링
+  ~~~
+  -1 : 아직 라벨링 안함(default)
+  0  : 개발과 관련 없음
+  1  : 개발과 관련 있음
+  ~~~
+
   - analysis
   ~~~
   - 데이터 수량 조사
   Total data : 34,620개
   Total labeled data : 10,382개
   [label -1] 라벨링 안된 데이터 수 : 24,238개
-  [label  0] 개발과 관련 있는 데이터 수 : 7,634개
-  [label  1] 개발과 관련 없는 데이터 수 : 2,748개
+  [label  0] 개발과 관련 없는 데이터 수 : 2,748개
+  [label  1] 개발과 관련 있는 데이터 수 : 7,634개
 
   - 문장 길이 조사
   문장 길이 최대 값 : 358
@@ -53,7 +53,7 @@
   ~~~
   ![text length](https://user-images.githubusercontent.com/26322627/74600892-e4351c80-50da-11ea-9454-5397bf134ace.png)
 
-  - text word cloud
+  - word cloud
   ![word cloud](https://user-images.githubusercontent.com/26322627/74600889-dc757800-50da-11ea-9e55-97010103b606.png)
   
   - preprocessing
@@ -87,10 +87,16 @@
   text : algorithm python 한국의 파이썬 소식년 월 넷째 주 한국에서 일어나는 파이썬 관련 소식을 전합니다 알고리즘 시각화용 프로젝트 ipytracer 공개 미세먼지 대기정보 알림 봇 제작기 파이콘 년 월 세미나
   ~~~
 
+  - [최종 전처리 및 라벨링 된 데이터](https://drive.google.com/drive/u/0/folders/1Npfrh6XmeABJ8JJ6ApS1T88vVoqyDH7M)
+
 - word embedding
-  - wiki 한국어 데이터 기반 FastText model
-  - vocaburary size : 2,000,000
-  - embedding dimension : 300
+  - data : [wiki 한국어 데이터](https://dl.fbaipublicfiles.com/fasttext/vectors-crawl/cc.ko.300.bin.gz)
+  - model : [Gensim FastText](https://radimrehurek.com/gensim/models/fasttext.html)
+  ~~~
+  vocaburary size : 2,000,000
+  embedding dimension : 300
+  ~~~
+  
   - wv_model 유사단어 조회
   ~~~
   $ getSimilarWords('파이썬') # 유사한 단어 조회
@@ -101,8 +107,11 @@
   ('언어용', 0.5288202166557312)]
   ~~~
 
-- classifier
-  - tensorflow 2.0.1
+- train
+  ~~~
+  from main import *
+  train() # 학습 시작
+  ~~~
   - layer
   ~~~
   model.add(Dense(100, activation='relu', kernel_initializer='he_normal')
@@ -119,6 +128,4 @@
   precision : 0.739
   recall : 1.0
   ~~~
-
-  - train history
   ![train history](https://user-images.githubusercontent.com/26322627/74600880-d089b600-50da-11ea-95d4-ee22a7611dd6.png)
