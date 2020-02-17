@@ -106,7 +106,6 @@ $ getSimilarWords('파이썬') # 유사한 단어 조회
 ('언어용', 0.5288202166557312)]
 ~~~
 
----
 ### Classifier Model
 ~~~
 from main import *
