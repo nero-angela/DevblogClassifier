@@ -17,6 +17,7 @@
 - README.ipynb 참고
   ![how to run](https://user-images.githubusercontent.com/26322627/74600924-5e65a100-50db-11ea-8dad-31d18d909053.png)
 
+---
 ## How To Training
 - 학습에 필요 용량 : 19GB
   - [전처리 및 라벨링 된 데이터](https://drive.google.com/drive/u/0/folders/1Npfrh6XmeABJ8JJ6ApS1T88vVoqyDH7M) : 23.5MB
