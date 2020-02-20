@@ -32,7 +32,7 @@ def common_flags(f):
     f.DEFINE_integer('we_min_count', 3, 'word embedding min count')
 
     # classifier
-    f.DEFINE_string('cf_checkpoint', './cf_model/checkpoint', 'classifier model checkpoint path')
+    f.DEFINE_string('cf_checkpoint', './checkpoint', 'classifier model checkpoint path')
 
 def create_predict_flags():
     f = flags
