@@ -95,7 +95,7 @@ vocaburary size : 2,000,000
 embedding dimension : 300
 ~~~
 
-- wv_model 유사단어 조회
+- we_model 유사단어 조회
 ~~~
 $ getSimilarWords('파이썬') # 유사한 단어 조회
 [('Python', 0.565061628818512),

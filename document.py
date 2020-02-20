@@ -1,10 +1,11 @@
 import os, re, csv, requests, json
 import numpy as np
 import pandas as pd
+from flags import CONST
 from enum import Enum
 from tqdm import trange
 from bs4 import BeautifulSoup
-from util import downloadByURL
+from util import downloadByURL, downloadIfNotExist
 
 class KEYS(Enum):
     # -1 : 아직 라벨링 안함 (default)
@@ -52,25 +53,7 @@ class KEYS(Enum):
 class Document():
     
     def __init__(self, update=False):
-        
-        # Constant
-        self.DATA_URL = 'https://awesome-devblog.now.sh/api/korean/people/feeds'
-        self.DOCUMENTS_PATH = './data/documents.csv'
-        self.DOCUMENTS_URL = 'https://drive.google.com/uc?id=1K5Isidyb1O7OXQ47Yk2fMVYBvEoL6W4-&export=download'
-        self.MAX_REQ_SIZE = 5000
-        
-        # 기본 폴더 생성
-        for path in ['./data', './model', './wv_model']:
-            if not os.path.isdir(path):
-                os.makedirs(path)
-                
-        # ./data/documents.csv가 없는 경우 Google Driver에서 받아옴
-        # 자동 다운로드가 안될 경우 아래 경로에서 직접 받아 ./data 폴더 하위에 추가하면 됨
-        # https://drive.google.com/drive/u/0/folders/1Npfrh6XmeABJ8JJ6ApS1T88vVoqyDH7M
-        if not os.path.isfile(self.DOCUMENTS_PATH):
-            print('라벨링된 데이터를 다운로드합니다.')
-            downloadByURL(self.DOCUMENTS_URL, self.DOCUMENTS_PATH)
-        
+
         if update:
             self.updateDocs()
         
@@ -81,7 +64,7 @@ class Document():
         - return
         : int / 전체 문서 개수
         """
-        res = requests.get(self.DATA_URL, { 'size': 1 })
+        res = requests.get(CONST.origin_data_url, { 'size': 1 })
         res.raise_for_status()
         doc = res.json()
         return doc['total'][0]['count']
@@ -105,7 +88,7 @@ class Document():
             'page': page,
             'size': size
         }
-        res = requests.get(self.DATA_URL, params)
+        res = requests.get(CONST.origin_data_url, params)
         res.raise_for_status()
         doc = res.json()
         
@@ -131,7 +114,7 @@ class Document():
         : DataFrame / 전처리된 전체 데이터로 구성
         """
         total = self._getTotal()
-        if size > self.MAX_REQ_SIZE: size = self.MAX_REQ_SIZE
+        if size > CONST.origin_max_req_size: size = CONST.origin_max_req_size
         total_req = round(total/size + 0.5)
         docs = pd.DataFrame()
         for i in trange(start_page, total_req):
@@ -143,7 +126,7 @@ class Document():
         return self.preprocessing(docs)
     
     def preprocessing(self, doc, joinTags=True):
-        """
+        r"""
         문서 전처리
         : tags / 배열로 되어있으므로 띄어쓰기로 join
         : title, description, tags / 영어, 한글, 공백만 남김
@@ -190,7 +173,7 @@ class Document():
         doc = doc.drop(doc[doc[KEYS.TITLE.value].isin(KEYS.getTitleBlackList())].index).reset_index()
                         
         # create text column
-        join_with = lambda x: ' '.join(x.dropna().astype(str))
+        join_with = lambda x: ' '.join(x.dropna().astype(str)).strip()
         doc[KEYS.TEXT.value] = doc[KEYS.getTextKeys()].apply(
             join_with,
             axis=1
@@ -206,10 +189,8 @@ class Document():
         - return
         : DataFrame / documents.csv 데이터
         """
-        if not os.path.isfile(self.DOCUMENTS_PATH):
-            print('> 문서가 없으므로 서버에 요청합니다.')
-            self.updateDocs()
-        data = pd.read_csv(self.DOCUMENTS_PATH, delimiter=',', dtype={KEYS.LABEL.value: np.int64})
+        downloadIfNotExist(CONST.devblog_data_path, CONST.devblog_data_url)
+        data = pd.read_csv(CONST.devblog_data_path, delimiter=',', dtype={KEYS.LABEL.value: np.int64})
         if not labeled_only:
             return data
         else:
@@ -225,29 +206,27 @@ class Document():
         : ./data/documents.csv가 없는 경우 신규 생성
         : ./data/documents.csv가 있는 경우 신규 문서 추가
         """
-        size = self.MAX_REQ_SIZE
+        size = CONST.origin_max_req_size
         
-        if not os.path.isfile(self.DOCUMENTS_PATH):
+        if not os.path.isfile(CONST.devblog_data_path):
             # 데이터가 없는 경우
             docs = self._reqDocs(size)
-            docs.to_csv(self.DOCUMENTS_PATH, sep=",", index=False)
+            docs.to_csv(CONST.devblog_data_path, sep=",", index=False)
         else:
             # 기존 데이터가 있는 경우
-            num_new_docs = 0
-            docs = pd.read_csv(self.DOCUMENTS_PATH, delimiter=',')
+            docs = pd.read_csv(CONST.devblog_data_path, delimiter=',')
             total = self._getTotal()
             total_docs = len(docs)
-            new_docs_num = total - total_docs
             new_docs = self._reqDocs(size, total_docs // size)
             
             # _id가 기존 데이터에 존재하지 않는 경우에만 추가
             docs = docs.append(new_docs[~new_docs[KEYS.ID.value].isin(docs[KEYS.ID.value])])
-            docs.to_csv(self.DOCUMENTS_PATH, sep=",", index=False)
+            docs.to_csv(CONST.devblog_data_path, sep=",", index=False)
             
             if total_docs == len(docs):
-                print('> 문서가 최신 상태입니다.')
+                print('🐈 문서가 최신 상태입니다.')
             else:
-                print(f'> 신규 문서 {len(docs) - total_docs}개 추가')
+                print(f'🐈 신규 문서 {len(docs) - total_docs}개 추가')
     
     def syncDocLabel(self, old_document_path, sep, override=False):
         """
@@ -263,7 +242,7 @@ class Document():
         : ./data/documents.csv
         """
         
-        document = pd.read_csv(self.DOCUMENTS_PATH, delimiter=',')
+        document = pd.read_csv(CONST.devblog_data_path, delimiter=',')
         old_document = pd.read_csv(old_document_path, delimiter=sep)
         self.preprocessing(old_document, joinTags=False)
         for index, row in old_document.iterrows():
@@ -271,7 +250,7 @@ class Document():
             title = row.title
             label = int(row.label)
             if not len(document.loc[document.title.str.strip() == title.strip()]) and not len(document.loc[document.link == link]):
-                print(f'not found : {row.title}')
+                print(f'🐈 not found : {row.title}')
             elif len(document.loc[document.title.str.strip() == title.strip()]):
                 document.loc[document.title.str.strip() == title.strip(), KEYS.LABEL.value] = label
             elif len(document.loc[document.link == link]):
@@ -279,5 +258,5 @@ class Document():
         
         # save synchronized document
         if override:
-            document.to_csv(self.DOCUMENTS_PATH, sep=",", index=False)
-        print('done')
+            document.to_csv(CONST.devblog_data_path, sep=",", index=False)
+        print('🐈 done')
