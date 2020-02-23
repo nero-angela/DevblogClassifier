@@ -1,6 +1,7 @@
 import os
 import numpy as np
-from flags import CONST
+from absl import app
+from flags import create_flags, FLAGS, CONST
 from document import Document
 from util import downloadByURL, han2Jamo
 from gensim.models import FastText, fasttext # 둘이 다름 주의!
@@ -108,3 +109,13 @@ class WordEmbedding():
         for word in words:
             vector += we_model[word]
         return vector/words_num
+
+def main(_):
+    we = WordEmbedding()
+    we_model = we.loadWikiModel()
+    similar_words = we.getSimilarWords(we_model, FLAGS.predict)
+    print(similar_words)
+
+if __name__ == '__main__':
+    create_flags(True)
+    app.run(main)
