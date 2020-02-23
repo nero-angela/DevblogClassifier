@@ -39,6 +39,7 @@
 
 ### Data
 - Labeling : 전체 34,620개 중 10,382개 직접 라벨링
+- [전처리 및 라벨링 된 데이터](https://drive.google.com/drive/u/0/folders/1Npfrh6XmeABJ8JJ6ApS1T88vVoqyDH7M)
 ~~~
 -1 : 아직 라벨링 안함(default)
 0  : 개발과 관련 없음
@@ -98,8 +99,6 @@ text : algorithm python 한국의 파이썬 소식년 월 넷째 주 한국에�
 
 - WordCloud
 ![word cloud](https://user-images.githubusercontent.com/26322627/74600889-dc757800-50da-11ea-9e55-97010103b606.png)
-
-- [최종 전처리 및 라벨링 된 데이터](https://drive.google.com/drive/u/0/folders/1Npfrh6XmeABJ8JJ6ApS1T88vVoqyDH7M)
 
 ### Word Embedding
 - data : [wiki 한국어 데이터](https://dl.fbaipublicfiles.com/fasttext/vectors-crawl/cc.ko.300.bin.gz)
