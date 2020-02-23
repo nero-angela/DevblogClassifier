@@ -19,12 +19,11 @@
   ~~~
 
 - predict
-  - return [boolean : 개발문서 여부(0.5 기준), float : 0에 가까울수록 비개발문서, 1에 가까울 수록 개발문서]
+  - return : boolean(개발문서 여부) / float(0에 가까울수록 비개발문서, 1에 가까울 수록 개발문서)
   ~~~
   $ python predict.py --predict '필리핀 세부 시티의 맛집! 하우스 오브 레촌, cebu city, House of Lechon'
   > (False, 0.051)
   ~~~
-- predict
   ~~~
   $ python predict.py --predict '쿠버네티스 CI/DI 를 위한 오픈소스 프로젝트 알아보기'
   > (True, 0.989)
