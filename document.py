@@ -125,7 +125,7 @@ class Document():
                 docs = docs.append(doc)
         return self.preprocessing(docs)
     
-    def preprocessing(self, doc, joinTags=True):
+    def preprocessing(self, doc, joinTags=True, devblog=False):
         r"""
         문서 전처리
         : tags / 배열로 되어있으므로 띄어쓰기로 join
@@ -139,17 +139,27 @@ class Document():
         : text / tags + title + description 순서로 join된 컬럼 생성
         
         - input
-        : doc / DataFrame / documents.csv DataFrame
+        : doc / DataFrame or str / documents.csv DataFrame
         : joinTags / boolean / tags join 여부
         
         - return
         : DataFrame / 전처리 완료된 데이터
         """
+
+        if type(doc) == str:
+            doc = pd.DataFrame([{
+                'title': doc,
+                'description': '',
+                'tags': []
+            }])
         
         # title, description, tags
         def textPreprocessing(x):
             x = BeautifulSoup(str(x), "html.parser").get_text()
-            x = re.sub('[^가-힣a-zA-Z\s]', '', x)
+            if devblog:
+                x = re.sub('[^ㄱ-ㅎㅏ-ㅣ_가-힣a-zA-Z\s]', '', x)
+            else:
+                x = re.sub('[^가-힣a-zA-Z\s]', '', x)
             return x
         
         # all

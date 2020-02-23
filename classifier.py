@@ -91,17 +91,16 @@ class Classifier():
         
         # checkpoint
         checkpoint = ModelCheckpoint(filepath=checkpoint_path, mode='max', monitor='val_acc', verbose=2, save_best_only=True)
-        callbacks_list = [checkpoint]
         
         # early stopping
-        earlystop_callback = EarlyStopping(monitor='val_accuracy', min_delta=0.0001, patience=1)
+        earlystop_callback = EarlyStopping(monitor='val_acc', min_delta=0.001, patience=3)
         
         self.history = model.fit(X_train,
                             y_train,
                             epochs=epochs,
                             batch_size=batch_size,
                             validation_split=validation_split,
-                            callbacks=[callbacks_list, earlystop_callback])
+                            callbacks=[checkpoint, earlystop_callback])
         loss, accuracy, f1_score, precision, recall = model.evaluate(X_test, y_test, verbose=verbose)
         print(f'🐈  loss : {loss}')
         print(f'🐈  accuracy : {accuracy}')
@@ -127,12 +126,13 @@ class Classifier():
         is_dev_doc = confidence > criterion
         return is_dev_doc, confidence
         
-    def saveModel(self, model):
+    def saveModel(self, model, cf_model_path):
         """
         모델의 parameter와 weights를 저장한다.
         
         - input
         : model / classifier
+        : cf_model_path / str / 저장할 경로
         
         - export
         : ./model/classifier.json / parameter
@@ -140,26 +140,29 @@ class Classifier():
         """
         # save model
         model_json = model.to_json()
-        with open(CONST.classifier_model_path + '.json', "w") as json_file : 
+        with open(cf_model_path + '.json', "w") as json_file : 
             json_file.write(model_json)
         
         # save weights
-        model.save_weights(CONST.classifier_model_path + '.h5')
+        model.save_weights(cf_model_path + '.h5')
         
-    def loadModel(self):
+    def loadModel(self, cf_model_path):
         """
         모델을 불러옴
+
+        - input
+        : cf_model_path / str / 불러올 모델
         
         - return
         : classifier
         """
         # load model
-        with open(CONST.classifier_model_path + '.json', "r") as json_file:
+        with open(cf_model_path + '.json', "r") as json_file:
             json_model = json_file.read()
         model = model_from_json(json_model)
         
         # load weight
-        model.load_weights(CONST.classifier_model_path + '.h5')
+        model.load_weights(cf_model_path + '.h5')
         return model
         
     def showHistory(self):
