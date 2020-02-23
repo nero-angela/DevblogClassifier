@@ -65,9 +65,6 @@ Total labeled data : 10,382개
 ~~~
 ![text length](https://user-images.githubusercontent.com/26322627/74600892-e4351c80-50da-11ea-9454-5397bf134ace.png)
 
-- WordCloud
-![word cloud](https://user-images.githubusercontent.com/26322627/74600889-dc757800-50da-11ea-9e55-97010103b606.png)
-
 - Preprocessing
 ~~~
 - tags
@@ -98,6 +95,9 @@ tags : algorithm python
 link : http://raccoonyy.github.io/python-news-for-korean-2017-4th-week-mar/
 text : algorithm python 한국의 파이썬 소식년 월 넷째 주 한국에서 일어나는 파이썬 관련 소식을 전합니다 알고리즘 시각화용 프로젝트 ipytracer 공개 미세먼지 대기정보 알림 봇 제작기 파이콘 년 월 세미나
 ~~~
+
+- WordCloud
+![word cloud](https://user-images.githubusercontent.com/26322627/74600889-dc757800-50da-11ea-9e55-97010103b606.png)
 
 - [최종 전처리 및 라벨링 된 데이터](https://drive.google.com/drive/u/0/folders/1Npfrh6XmeABJ8JJ6ApS1T88vVoqyDH7M)
 
