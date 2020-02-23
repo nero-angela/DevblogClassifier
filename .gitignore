@@ -1,5 +1,7 @@
 data/*
-we_model/
+!data/.gitkeep
+we_model/*
+!we_model/.gitkeep
 checkpoint
 
 # Created by https://www.gitignore.io/api/macos,jupyternotebooks
