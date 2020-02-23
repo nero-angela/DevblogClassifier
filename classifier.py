@@ -1,19 +1,16 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
+from flags import CONST
 from sklearn.model_selection import train_test_split
 from keras import backend as K
 from tensorflow.keras.models import Sequential, model_from_json
 from tensorflow.keras.layers import SimpleRNN, Embedding, Dense, Dropout
-from tensorflow.keras.callbacks import ModelCheckpoint
+from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
 
 class Classifier():
     
-    def __init__(self,
-                 MODEL_PATH='./model/classifier.json',
-                 WEIGHT_PATH = './model/classifier.h5'):
-        self.MODEL_PATH = MODEL_PATH
-        self.WEIGHT_PATH = WEIGHT_PATH
+    def __init__(self):
         self.history = None
         
     def _reshape(self, x):
@@ -94,29 +91,48 @@ class Classifier():
         
         # checkpoint
         checkpoint = ModelCheckpoint(filepath=checkpoint_path, mode='max', monitor='val_acc', verbose=2, save_best_only=True)
-        callbacks_list = [checkpoint]
+        
+        # early stopping
+        earlystop_callback = EarlyStopping(monitor='val_acc', min_delta=0.001, patience=3)
         
         self.history = model.fit(X_train,
                             y_train,
                             epochs=epochs,
                             batch_size=batch_size,
                             validation_split=validation_split,
-                            callbacks=callbacks_list)
+                            callbacks=[checkpoint, earlystop_callback])
         loss, accuracy, f1_score, precision, recall = model.evaluate(X_test, y_test, verbose=verbose)
-        print(f'loss : {loss}')
-        print(f'accuracy : {accuracy}')
-        print(f'f1_score : {f1_score}')
-        print(f'precision : {precision}')
-        print(f'recall : {recall}')
-        self.saveModel(model)
+        print(f'🐈  loss : {loss}')
+        print(f'🐈  accuracy : {accuracy}')
+        print(f'🐈  f1_score : {f1_score}')
+        print(f'🐈  precision : {precision}')
+        print(f'🐈  recall : {recall}')
         return model
+
+    def predict(self, cf_model, vector, criterion=0.5):
+        """
+        개발관련 문서여부 예측
         
-    def saveModel(self, model):
+        - input
+        : cf_model / classifier model
+        : vector / np.array / embedded vector
+        : criterion / float / 개발관련 문서 판단 기준
+        
+        - return
+        : boolean / 개발문서 여부
+        : float / 1에 가까울수록 개발관련 문서
+        """
+        confidence = round(cf_model.predict(vector)[0][1], 3)
+        is_dev_doc = confidence > criterion
+        return is_dev_doc, confidence
+        
+    def saveModel(self, model, cf_model_path):
         """
         모델의 parameter와 weights를 저장한다.
         
         - input
         : model / classifier
+        : cf_model_path / str / 저장할 경로
         
         - export
         : ./model/classifier.json / parameter
@@ -124,26 +140,29 @@ class Classifier():
         """
         # save model
         model_json = model.to_json()
-        with open(self.MODEL_PATH, "w") as json_file : 
+        with open(cf_model_path + '.json', "w") as json_file : 
             json_file.write(model_json)
         
         # save weights
-        model.save_weights(self.WEIGHT_PATH)
+        model.save_weights(cf_model_path + '.h5')
         
-    def loadModel(self):
+    def loadModel(self, cf_model_path):
         """
         모델을 불러옴
+
+        - input
+        : cf_model_path / str / 불러올 모델
         
         - return
         : classifier
         """
         # load model
-        with open(self.MODEL_PATH, "r") as json_file:
+        with open(cf_model_path + '.json', "r") as json_file:
             json_model = json_file.read()
         model = model_from_json(json_model)
         
         # load weight
-        model.load_weights(self.WEIGHT_PATH)
+        model.load_weights(cf_model_path + '.h5')
         return model
         
     def showHistory(self):
@@ -151,7 +170,7 @@ class Classifier():
         train history를 그래프로 나타냄
         """
         if self.history == None:
-            print('학습내역이 없습니다.')
+            print('🐈  학습내역이 없습니다.')
             return
         
         fig, loss_ax = plt.subplots()
