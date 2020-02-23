@@ -13,8 +13,11 @@
   $ pip install -r requirements.txt
   ~~~
 
-- README.ipynb 참고
-  ![how to run](https://user-images.githubusercontent.com/26322627/74600924-5e65a100-50db-11ea-8dad-31d18d909053.png)
+- run
+  ~~~
+  $ python predict.py --predict 'docker 기반 데이터 시각화툴 superset 설치하기'
+  >wk
+  ~~~
 
 ## How To Training
 - 학습에 필요 용량 : 19GB

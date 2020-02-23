@@ -21,13 +21,15 @@ def predict(_):
                                        epochs        = FLAGS.we_epoch,
                                        window        = FLAGS.we_window,
                                        min_count     = FLAGS.we_min_count)
-        
+        text = han2Jamo(FLAGS.predict)
     elif FLAGS.we_model == 'wiki':
         we_model = we.loadWikiModel()
+        text = FLAGS.predict
 
     # preprocessing    
+    print(text)
     df = dc.preprocessing(pd.DataFrame([{
-        'title': FLAGS.predict,
+        'title': text,
         'description': '',
         'tags': []
     }]))
