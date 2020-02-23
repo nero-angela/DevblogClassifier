@@ -8,7 +8,7 @@ from word_embedding import WordEmbedding
 from classifier import Classifier
 from document import Document
 
-def predict(_):
+def main(_):
 
     # init
     we = WordEmbedding()
@@ -43,4 +43,4 @@ def predict(_):
     
 if __name__ == '__main__':
     create_flags(True)
-    app.run(predict)
+    app.run(main)
