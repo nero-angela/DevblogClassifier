@@ -2,7 +2,7 @@
 - [Daily Devblog](http://daily-devblog.com/) 서비스를 위한 개발 문서 분류기입니다.
 - [Awesome Devblog](https://github.com/sarojaba/awesome-devblog)에서 제공받은 데이터를 이용하였습니다.
 
-## How To Run
+## Description
 - 개발환경
   - macOS Catalina v10.15.3
   - Python 3.7
@@ -13,13 +13,25 @@
   $ pip install -r requirements.txt
   ~~~
 
-- run
+- train
   ~~~
-  $ python predict.py --predict 'docker 기반 데이터 시각화툴 superset 설치하기'
-  >wk
+  $ python train.py
+  ~~~
+
+- predict
+  - return [boolean : 개발문서 여부(0.5 기준), float : 0에 가까울수록 비개발문서, 1에 가까울 수록 개발문서]
+  ~~~
+  $ python predict.py --predict '필리핀 세부 시티의 맛집! 하우스 오브 레촌, cebu city, House of Lechon'
+  (False, 0.051)
+  ~~~
+- predict
+  ~~~
+  $ python predict.py --predict '쿠버네티스 CI/DI 를 위한 오픈소스 프로젝트 알아보기'
+  (True, 0.989)
   ~~~
 
 ## How To Training
+- `Data Analysis & Word Embedding.ipynb` 참고
 - 학습에 필요 용량 : 19GB
   - [전처리 및 라벨링 된 데이터](https://drive.google.com/drive/u/0/folders/1Npfrh6XmeABJ8JJ6ApS1T88vVoqyDH7M) : 23.5MB
   - [wiki 한국어 데이터](https://dl.fbaipublicfiles.com/fasttext/vectors-crawl/cc.ko.300.bin.gz) : 4.49GB 
@@ -98,9 +110,9 @@ vocaburary size : 2,000,000
 embedding dimension : 300
 ~~~
 
-- we_model 유사단어 조회
+- 유사단어 조회
 ~~~
-$ getSimilarWords('파이썬') # 유사한 단어 조회
+$ python word_embedding.py --predict '파이썬'
 [('Python', 0.565061628818512),
 ('자이썬', 0.5624369382858276),
 ('레일스', 0.5598082542419434),
@@ -109,10 +121,6 @@ $ getSimilarWords('파이썬') # 유사한 단어 조회
 ~~~
 
 ### Classifier Model
-~~~
-from main import *
-train() # 학습 시작
-~~~
 - layer
 ~~~
 model.add(Dense(100, activation='relu', kernel_initializer='he_normal')
