@@ -2,7 +2,7 @@
 - [Daily Devblog](http://daily-devblog.com/) 서비스를 위한 개발 문서 분류기입니다.
 - [Awesome Devblog](https://github.com/sarojaba/awesome-devblog)에서 제공받은 데이터를 이용하였습니다.
 
-## Description
+## How To Run
 - 개발환경
   - macOS Catalina v10.15.3
   - Python 3.7
@@ -19,18 +19,23 @@
   ~~~
 
 - predict
-  - return [boolean : 개발문서 여부(0.5 기준), float : 0에 가까울수록 비개발문서, 1에 가까울 수록 개발문서]
+  - 예측하려는 데이터에 **쉼표(,)를 제거 필요**
   ~~~
-  $ python predict.py --predict '필리핀 세부 시티의 맛집! 하우스 오브 레촌, cebu city, House of Lechon'
-  > (False, 0.051)
+  $ python predict.py --predict '필리핀 세부 시티의 맛집! 하우스 오브 레촌 cebu city House of Lechon'
+  > [{'text': '필리핀 세부 시티의 맛집! 하우스 오브 레촌 cebu city House of Lechon', 'predict': (False, 0.051)}]
   ~~~
-- predict
   ~~~
   $ python predict.py --predict '쿠버네티스 CI/DI 를 위한 오픈소스 프로젝트 알아보기'
-  > (True, 0.989)
+  > [{'text': '쿠버네티스 CI/DI 를 위한 오픈소스 프로젝트 알아보기', 'predict': (True, 0.989)}]
+  ~~~
+  
+  - 여러 문장을 한 번의 요청으로 응답받고 싶은 경우 쉼표(,)로 분리하여 요청
+  ~~~
+  $ python predict.py --predict '파이썬, 맛집탐방'
+  > [{'text': '파이썬','predict': (True, 1.0)}, {'text': '맛집탐방', 'predict': (False, 0.073)}]
   ~~~
 
-## How To Training
+## Description
 - `Data Analysis & Word Embedding.ipynb` 참고
 - 학습에 필요 용량 : 19GB
   - [전처리 및 라벨링 된 데이터](https://drive.google.com/drive/u/0/folders/1Npfrh6XmeABJ8JJ6ApS1T88vVoqyDH7M) : 23.5MB
@@ -40,6 +45,7 @@
 
 ### Data
 - Labeling : 전체 34,620개 중 10,382개 직접 라벨링
+- [전처리 및 라벨링 된 데이터](https://drive.google.com/drive/u/0/folders/1Npfrh6XmeABJ8JJ6ApS1T88vVoqyDH7M)
 ~~~
 -1 : 아직 라벨링 안함(default)
 0  : 개발과 관련 없음
@@ -65,9 +71,6 @@ Total labeled data : 10,382개
 문장 길이 제 3 사분위 : 203.0
 ~~~
 ![text length](https://user-images.githubusercontent.com/26322627/74600892-e4351c80-50da-11ea-9454-5397bf134ace.png)
-
-- WordCloud
-![word cloud](https://user-images.githubusercontent.com/26322627/74600889-dc757800-50da-11ea-9e55-97010103b606.png)
 
 - Preprocessing
 ~~~
@@ -100,7 +103,8 @@ link : http://raccoonyy.github.io/python-news-for-korean-2017-4th-week-mar/
 text : algorithm python 한국의 파이썬 소식년 월 넷째 주 한국에서 일어나는 파이썬 관련 소식을 전합니다 알고리즘 시각화용 프로젝트 ipytracer 공개 미세먼지 대기정보 알림 봇 제작기 파이콘 년 월 세미나
 ~~~
 
-- [최종 전처리 및 라벨링 된 데이터](https://drive.google.com/drive/u/0/folders/1Npfrh6XmeABJ8JJ6ApS1T88vVoqyDH7M)
+- WordCloud
+![word cloud](https://user-images.githubusercontent.com/26322627/74600889-dc757800-50da-11ea-9e55-97010103b606.png)
 
 ### Word Embedding
 - data : [wiki 한국어 데이터](https://dl.fbaipublicfiles.com/fasttext/vectors-crawl/cc.ko.300.bin.gz)

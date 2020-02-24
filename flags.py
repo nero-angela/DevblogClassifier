@@ -27,9 +27,9 @@ def create_flags(predict=False):
 
     # predict
     if predict:
-        f.DEFINE_string('predict', None, "sentence you want to predict")
+        f.DEFINE_list('predict', None, "sentence you want to predict")
         f.register_validator('predict',
-                            lambda x: x != None,
+                            lambda x: len(x) > 0,
                             message="write the sentence you want to predict. ex) 'how to learn python'")
 
     # word embedding
