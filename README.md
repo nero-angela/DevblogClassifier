@@ -19,7 +19,15 @@
   ~~~
 
 - predict
-  - 예측하려는 데이터에 **쉼표(,)를 제거 필요**
+  - return
+  ~~~
+  [{
+   'text': input 데이터,
+   'predict': (Boolean, float) # 0.5 기준으로 문서 판별 & 1에 가까울 수록 개발 관련 문서
+  }]
+  ~~~
+  
+  - 예측하려는 데이터에 쉼표(,)를 제거 필요
   ~~~
   $ python predict.py --predict '필리핀 세부 시티의 맛집! 하우스 오브 레촌 cebu city House of Lechon'
   > [{'text': '필리핀 세부 시티의 맛집! 하우스 오브 레촌 cebu city House of Lechon', 'predict': (False, 0.051)}]
