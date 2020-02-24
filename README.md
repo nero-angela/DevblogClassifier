@@ -19,14 +19,20 @@
   ~~~
 
 - predict
-  - return : boolean(개발문서 여부) / float(0에 가까울수록 비개발문서, 1에 가까울 수록 개발문서)
+  - 예측하려는 데이터에 **쉼표(,)를 제거 필요**
   ~~~
-  $ python predict.py --predict '필리핀 세부 시티의 맛집! 하우스 오브 레촌, cebu city, House of Lechon'
-  > (False, 0.051)
+  $ python predict.py --predict '필리핀 세부 시티의 맛집! 하우스 오브 레촌 cebu city House of Lechon'
+  > [{'text': '필리핀 세부 시티의 맛집! 하우스 오브 레촌 cebu city House of Lechon', 'predict': (False, 0.051)}]
   ~~~
   ~~~
   $ python predict.py --predict '쿠버네티스 CI/DI 를 위한 오픈소스 프로젝트 알아보기'
-  > (True, 0.989)
+  > [{'text': '쿠버네티스 CI/DI 를 위한 오픈소스 프로젝트 알아보기', 'predict': (True, 0.989)}]
+  ~~~
+  
+  - 여러 문장을 한 번의 요청으로 응답받고 싶은 경우 쉼표(,)로 분리하여 요청
+  ~~~
+  $ python predict.py --predict '파이썬, 맛집탐방'
+  > [{'text': '파이썬','predict': (True, 1.0)}, {'text': '맛집탐방', 'predict': (False, 0.073)}]
   ~~~
 
 ## Description

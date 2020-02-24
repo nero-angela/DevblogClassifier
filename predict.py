@@ -9,7 +9,6 @@ from classifier import Classifier
 from document import Document
 
 def main(_):
-
     # init
     we = WordEmbedding()
     dc = Document()
@@ -21,25 +20,29 @@ def main(_):
                                        epochs        = FLAGS.we_epoch,
                                        window        = FLAGS.we_window,
                                        min_count     = FLAGS.we_min_count)
-        text = han2Jamo(FLAGS.predict)
     elif FLAGS.we_model == 'wiki':
         we_model = we.loadWikiModel()
-        text = FLAGS.predict
-
-    # preprocessing    
-    is_devblog = FLAGS.we_model == 'devblog'
-    df = dc.preprocessing(text, devblog=is_devblog)
-    vector = df.text.apply(lambda x: we.embedding(we_model, x, FLAGS.we_dim)).tolist()
-    if len(vector) == 0:
-        print('🐈 text is not valid')
-        return
-    vector = np.array(vector)
 
     # load classifier model
     cf_model = cf.loadModel(FLAGS.cf_model)
 
-    # predict
-    print(cf.predict(cf_model, vector))
+    results = [{'text': r} for r in FLAGS.predict]
+    is_devblog = FLAGS.we_model == 'devblog'
+    for i, r in enumerate(FLAGS.predict):
+        # preprocessing
+        text = han2Jamo(r) if is_devblog else r
+
+        # word embedding
+        df = dc.preprocessing(text, devblog=is_devblog)
+        vector = df.text.apply(lambda x: we.embedding(we_model, x, FLAGS.we_dim)).tolist()
+        if len(vector) == 0:
+            print('🐈 text is not valid')
+            return
+        else:
+            # predict
+            results[i]['predict'] = cf.predict(cf_model, np.array(vector))
+    
+    return results
     
 if __name__ == '__main__':
     create_flags(True)
