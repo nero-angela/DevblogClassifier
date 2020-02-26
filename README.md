@@ -90,7 +90,7 @@ Total labeled data : 10,382개
 - _id, title, description, tag, link
 html tag 삭제
 \n, \r 삭제
-2회 이상의 공백은 하나로 줄입
+2회 이상의 공백은 하나로 변환
 영어 대문자 소문자로 변환
 앞뒤 공백 삭제
 블랙리스트 데이터 제외
