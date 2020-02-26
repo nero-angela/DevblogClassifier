@@ -39,9 +39,8 @@
   ~~~
   [{
    'text': input 데이터,
-   'predict': (Boolean, float) # 0.5 기준으로 문서 판별 & 1에 가까울 수록 개발 관련 문서
+   'predict': (Boolean, float) # --criterion flag(default 0.4) 기준으로 문서 판별 & 1에 가까울 수록 개발 관련 문서
   }]
-  ~~~
 
 ## Description
 - `Data Analysis & Word Embedding.ipynb` 참고

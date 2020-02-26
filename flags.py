@@ -27,7 +27,8 @@ def create_flags(predict=False):
 
     # predict
     if predict:
-        f.DEFINE_list('predict', None, "sentence you want to predict")
+        f.DEFINE_float('criterion', 0.4, 'criterion for judgement')
+        f.DEFINE_list('predict', None, 'sentence you want to predict')
         f.register_validator('predict',
                             lambda x: len(x) > 0,
                             message="write the sentence you want to predict. ex) 'how to learn python'")
