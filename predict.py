@@ -36,11 +36,11 @@ def main(_):
         df = dc.preprocessing(text, devblog=is_devblog)
         vector = df.text.apply(lambda x: we.embedding(we_model, x, FLAGS.we_dim)).tolist()
         if len(vector) == 0:
-            print('🐈 text is not valid')
+            print('🐈 text is not valid :', r)
             return
         else:
             # predict
-            results[i]['predict'] = cf.predict(cf_model, np.array(vector))
+            results[i]['predict'] = cf.predict(cf_model, np.array(vector), FLAGS.criterion)
     
     return results
     
