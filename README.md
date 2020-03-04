@@ -1,6 +1,7 @@
 # Devblog Classifier
 - [Daily Devblog](http://daily-devblog.com/) 서비스를 위한 개발 문서 분류기입니다.
 - [Awesome Devblog](https://github.com/sarojaba/awesome-devblog)에서 제공받은 데이터를 이용하였습니다.
+- 개발 후기는 [딥러닝으로 문서 분류기 만들기](https://nero.devstory.co.kr/post/pj-devblog-classifier/) 포스팅을 참고해주세요.
 
 ## How To Run
 - 개발환경
