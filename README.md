@@ -1,26 +1,81 @@
 # Devblog Classifier
-- [Daily Devblog](http://daily-devblog.com/) 서비스를 위한 개발 문서 분류기입니다.
+- 개발 관련 글인지 분류하는 어플리케이션입니다.
 - [Awesome Devblog](https://github.com/sarojaba/awesome-devblog)에서 제공받은 데이터를 이용하였습니다.
-- 개발 후기는 [딥러닝으로 문서 분류기 만들기](https://nero.devstory.co.kr/post/pj-devblog-classifier/) 포스팅을 참고해주세요.
+- 개발 후기는 [딥러닝으로 문서 분류기 만들기](https://blog.devstory.co.kr/post/devblog-classifier/) 포스팅을 참고해 주세요.
+
+## Demo
+### 비개발 문서로 판단
+```
+(False, 0.191) 영어패턴#37
+(False, 0.013) 당신은 정말 의지가 있는가?
+(False, 0.041) 손흥민 시즌 13호골! epl 25라운드 토트넘 vs 맨체스터시티
+(False, 0.051) 필리핀 세부 시티의 맛집! 하우스 오브 레촌 cebu city House of Lechon
+(False, 0.191) 영어패턴#38
+(False, 0.053) 언덕 너머
+(False, 0.185) Ansible 파일 마지막 변경 일자 확인하기 😓
+```
+
+### 개발 문서로 판단
+```
+(True, 0.983) 맥북 초보자들이 꼭 알아야 할 단축키 top 5! mac keyboard shortcut 5. feat.맥북을 산  이유
+(True, 1.000) [Spring Boot] 내장 웹 서버 - 2 (스프링부트 HTTPS / HTTP2)
+(True, 0.971) 네이버클라우드플랫폼 Certificate Manager 에 LetsEncrypt 인증서 등록
+(True, 0.791) Go로 블록체인 만들기 #1
+(True, 1.000) 엔티티 매핑
+(True, 0.973) [11775]Compactness criteria for clustering
+(True, 0.989) 쿠버네티스 CI/DI 를 위한 오픈소스 프로젝트 알아보기
+(True, 0.992) [Windows] USB 윈도우 10 설치 /  다운로드 방법
+(True, 0.981) [Spring Boot] JAR파일(독립적으로 실행가능)
+(True, 1.000) 케라스(Keras)의 get_file 함수
+(True, 0.987) 웹 서비스 Maintenance Mode (점검 모드) 지원기
+(True, 0.996) Nodejs AES 128 CCM 암호화(복호화) 예제 - crypto
+(True, 0.706) [운영체제(OS)] 7. 쓰레드(Thread)
+(True, 1.000) 비동기 처리와 콜백함수 그리고 Promise
+(True, 0.994) docker기반 데이터 시각화툴 Superset 설치하기 (리눅스)
+(True, 0.980) Wayland과 Weston
+(True, 0.937) 테스트 주도 개발(Test-Driven Development:By Example) - 1부 : 화폐 예제 (9 ~ 10장)
+(True, 0.584) [B급 프로그래머] 1월 5주 소식(빅데이터/인공지능 읽을거리 부문)
+(True, 0.999) [운영체제(OS)] 9. 프로세스 동기화 2
+(True, 1.000) 자바 String StringBuilder 그리고 StringBuffer 차이 비교
+(True, 0.892) (업무)2020년 2월 3일 REACT로 임상시험자동화솔루션 개발 Start
+(True, 0.544) [운영체제(OS)] 11. 모니터
+(True, 0.999) [운영체제(OS)] 8. 프로세스 동기화 1
+(True, 1.000) c언어 fopen 함수 : 파일을 연다.
+(True, 0.726) 스프링 데이터 JPA와 Querydsl 인프런 강의 정리
+(True, 0.991) [Sprint #10] Server Side Techniques Sprint
+(True, 0.463) 기술 뉴스 #143 : 20-02-03
+(True, 0.632) 카카오메일 IMAP / POP3 / SMTP 설정방법
+(True, 0.985) [Algorithm] 이진트 리의 구현과 순회 알고리즘
+(True, 0.999) [운영체제(OS)] 10. 프로세스 동기화 3
+(True, 0.989) [맥북] 트랙패드 제스처
+(True, 1.000) [스프링 부트 개념과 활용] 로깅
+(True, 1.000) [스프링 부트 개념과 활용] Profile
+```
+
+## Data
+- [전처리 및 라벨링 된 데이터](https://drive.google.com/drive/u/0/folders/1Npfrh6XmeABJ8JJ6ApS1T88vVoqyDH7M) : 23.5MB
+- [wiki 한국어 데이터](https://dl.fbaipublicfiles.com/fasttext/vectors-crawl/cc.ko.300.bin.gz) : 4.49GB 
+- [Gensim FastText model](https://radimrehurek.com/gensim/models/fasttext.html) : 14.5GB
+- tensorflow model : 170KB
+
 
 ## How To Run
-- 개발환경
+### Environment
   - macOS Catalina v10.15.3
   - Python 3.7
   - Tensorflow 2.0.1
 
-- 라이브러리 설치
+### Install library
   ~~~
   $ pip install -r requirements.txt
   ~~~
 
-- train
+### Train
   ~~~
   $ python train.py
   ~~~
 
-- predict  
-  - 예측하려는 데이터에 쉼표(,)를 제거 필요
+### Predict  
   ~~~
   $ python predict.py --predict '필리핀 세부 시티의 맛집! 하우스 오브 레촌 cebu city House of Lechon'
   > [{'text': '필리핀 세부 시티의 맛집! 하우스 오브 레촌 cebu city House of Lechon', 'predict': (False, 0.051)}]
@@ -29,124 +84,7 @@
   $ python predict.py --predict '쿠버네티스 CI/DI 를 위한 오픈소스 프로젝트 알아보기'
   > [{'text': '쿠버네티스 CI/DI 를 위한 오픈소스 프로젝트 알아보기', 'predict': (True, 0.989)}]
   ~~~
-  
-  - 여러 문장을 한 번의 요청으로 응답받고 싶은 경우 쉼표(,)로 분리하여 요청
   ~~~
   $ python predict.py --predict '파이썬, 맛집탐방'
   > [{'text': '파이썬','predict': (True, 1.0)}, {'text': '맛집탐방', 'predict': (False, 0.073)}]
   ~~~
-  
-  - 반환값
-  ~~~
-  [{
-   'text': input 데이터,
-   'predict': (Boolean, float) # --criterion flag(default 0.4) 기준으로 문서 판별 & 1에 가까울 수록 개발 관련 문서
-  }]
-
-## Description
-- `Data Analysis & Word Embedding.ipynb` 참고
-- 학습에 필요 용량 : 19GB
-  - [전처리 및 라벨링 된 데이터](https://drive.google.com/drive/u/0/folders/1Npfrh6XmeABJ8JJ6ApS1T88vVoqyDH7M) : 23.5MB
-  - [wiki 한국어 데이터](https://dl.fbaipublicfiles.com/fasttext/vectors-crawl/cc.ko.300.bin.gz) : 4.49GB 
-  - [Gensim FastText model](https://radimrehurek.com/gensim/models/fasttext.html) : 14.5GB
-  - tensorflow model : 170KB
-
-### Data
-- Labeling : 전체 34,620개 중 10,382개 직접 라벨링
-- [전처리 및 라벨링 된 데이터](https://drive.google.com/drive/u/0/folders/1Npfrh6XmeABJ8JJ6ApS1T88vVoqyDH7M)
-~~~
--1 : 아직 라벨링 안함(default)
-0  : 개발과 관련 없음
-1  : 개발과 관련 있음
-~~~
-
-- Analysis
-~~~
-- 데이터 수량 조사
-Total data : 34,620개
-Total labeled data : 10,382개
-[label -1] 라벨링 안된 데이터 수 : 24,238개
-[label  0] 개발과 관련 없는 데이터 수 : 2,748개
-[label  1] 개발과 관련 있는 데이터 수 : 7,634개
-
-- 문장 길이 조사
-문장 길이 최대 값 : 358
-문장 길이 최소 값 : 3
-문장 길이 평균 값 : 145.02
-문장 길이 표준편차 : 60.59
-문장 길이 중간 값 : 132.0
-문장 길이 제 1 사분위 : 108.0
-문장 길이 제 3 사분위 : 203.0
-~~~
-![text length](https://user-images.githubusercontent.com/26322627/74600892-e4351c80-50da-11ea-9454-5397bf134ace.png)
-
-- Preprocessing
-~~~
-- tags
-배열로 되어있으므로 띄어쓰기로 join
-
-- title, description, tags
-영어, 한글, 공백만 남김
-
-- _id, title, description, tag, link
-html tag 삭제
-\n, \r 삭제
-2회 이상의 공백은 하나로 변환
-영어 대문자 소문자로 변환
-앞뒤 공백 삭제
-블랙리스트 데이터 제외
-
-- text 추가 (대표 문장)
-text = tags + title + description
-~~~
-
-- 전처리 완료된 데이터 예시
-~~~
-label : -1
-_id : 5e0415143e8fe000041459b2
-title : 한국의 파이썬 소식년 월 넷째 주
-description : 한국에서 일어나는 파이썬 관련 소식을 전합니다 알고리즘 시각화용 프로젝트 ipytracer 공개 미세먼지 대기정보 알림 봇 제작기 파이콘 년 월 세미나
-tags : algorithm python
-link : http://raccoonyy.github.io/python-news-for-korean-2017-4th-week-mar/
-text : algorithm python 한국의 파이썬 소식년 월 넷째 주 한국에서 일어나는 파이썬 관련 소식을 전합니다 알고리즘 시각화용 프로젝트 ipytracer 공개 미세먼지 대기정보 알림 봇 제작기 파이콘 년 월 세미나
-~~~
-
-- WordCloud
-![word cloud](https://user-images.githubusercontent.com/26322627/74600889-dc757800-50da-11ea-9e55-97010103b606.png)
-
-### Word Embedding
-- data : [wiki 한국어 데이터](https://dl.fbaipublicfiles.com/fasttext/vectors-crawl/cc.ko.300.bin.gz)
-- model : [Gensim FastText](https://radimrehurek.com/gensim/models/fasttext.html)
-~~~
-vocaburary size : 2,000,000
-embedding dimension : 300
-~~~
-
-- 유사단어 조회
-~~~
-$ python word_embedding.py --predict '파이썬'
-> [('Python', 0.565061628818512),
-('자이썬', 0.5624369382858276),
-('레일스', 0.5598082542419434),
-('파이썬을', 0.5595801472663879),
-('언어용', 0.5288202166557312)]
-~~~
-
-### Classifier Model
-- layer
-~~~
-model.add(Dense(100, activation='relu', kernel_initializer='he_normal')
-model.add(Dense(80, activation='relu', kernel_initializer='he_normal'))
-model.add(Dense(2, activation='softmax'))
-model.compile(optimizer='adam', loss='sparse_categorical_crossentropy')
-~~~
-
-- performance
-~~~
-loss : 0.278
-accuracy : 0.883
-f1_score : 0.847
-precision : 0.739
-recall : 1.0
-~~~
-![train history](https://user-images.githubusercontent.com/26322627/74600880-d089b600-50da-11ea-95d4-ee22a7611dd6.png)
